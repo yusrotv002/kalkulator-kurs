@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkulator Kurs USD-IDR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: satu "lembar uang" di tengah. Panel atas = papan kurs berpola guilloche, panel bawah = dua kolom konversi */
+:root{
+  --bg:#e9eee9; --paper:#fbfcf9; --ink:#14201b; --muted:#5d6b64; --line:#d5ddd7;
+  --note:#0d5a43; --note-2:#127a5a; --note-ink:#f2f7f3; --gold:#c49a3a; --down:#b4442f; --field:#f1f4f0;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1311; --paper:#151e1b; --ink:#e8efeb; --muted:#97a69f; --line:#28342f;
+  --note:#0b4736; --note-2:#10644b; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1311; --paper:#151e1b; --ink:#e8efeb; --muted:#97a69f; --line:#28342f;
+  --note:#0b4736; --note-2:#10644b; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px}
+.sheet{max-width:440px;margin:0 auto;background:var(--paper);border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 0 var(--line),0 18px 40px -22px rgba(10,40,30,.45)}
+
+/* Papan kurs */
+.board{position:relative;color:var(--note-ink);padding:26px 24px 24px;
+  background:
+    repeating-radial-gradient(circle at 110% -10%, transparent 0 9px, rgba(255,255,255,.06) 9px 10px),
+    repeating-radial-gradient(circle at -10% 120%, transparent 0 11px, rgba(255,255,255,.05) 11px 12px),
+    linear-gradient(140deg,var(--note-2),var(--note));
+  border-bottom:3px solid var(--gold)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85;font-weight:600}
+.pair{font-family:var(--mono);letter-spacing:.06em}
+.rate{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,11vw,3.4rem);line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rate small{font-size:.38em;font-weight:600;opacity:.75;margin-right:4px;vertical-align:.9em}
+.meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:.85rem;opacity:.92}
+.chg{background:rgba(0,0,0,.22);border-radius:999px;padding:2px 10px;font-weight:600;font-family:var(--mono);font-size:.8rem}
+.seal{position:absolute;right:20px;bottom:18px;width:54px;height:54px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.35);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.3rem;color:var(--gold)}
+
+/* Konversi */
+.conv{padding:24px;display:flex;flex-direction:column;gap:6px}
+.row label{display:flex;justify-content:space-between;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.box{display:flex;align-items:center;gap:10px;background:var(--field);border:1.5px solid transparent;border-radius:12px;padding:6px 14px;transition:border-color .15s}
+.box:focus-within{border-color:var(--note-2)}
+.flag{flex:none;width:30px;height:20px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+.sym{font-family:var(--display);font-weight:600;color:var(--muted);font-size:1.15rem}
+input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 1.55rem var(--mono);padding:8px 0;font-variant-numeric:tabular-nums;outline:none}
+.mid{display:flex;align-items:center;gap:12px;margin:8px 0}
+.mid::before,.mid::after{content:"";flex:1;border-top:1px dashed var(--line)}
+.eq{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--paper);border:1.5px solid var(--line);color:var(--note-2)}
+
+.foot{border-top:1px solid var(--line);padding:16px 24px 20px;display:flex;flex-direction:column;gap:10px}
+.edit{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--muted)}
+.edit input{font-size:.95rem;background:var(--field);border-radius:8px;padding:6px 10px;max-width:130px}
+.edit input:focus{box-shadow:0 0 0 2px var(--note-2)}
+.src{font-size:.75rem;color:var(--muted);margin:0}
+@media (prefers-reduced-motion:reduce){.box{transition:none}}
+</style>
+</head>
+<body>
+
+<main class="sheet">
+  <section class="board" aria-label="Kurs hari ini">
+    <div class="top"><span>Kurs Dolar AS</span><span class="pair">USD / IDR</span></div>
+    <div class="rate" id="rateBig"><small>Rp</small>18.027</div>
+    <div class="meta"><span>Penutupan Jumat, 16 Okt 2026</span><span class="chg" style="color:#ffd6cc">▲ 89 poin</span></div>
+    <div class="seal" aria-hidden="true">$</div>
+  </section>
+
+  <section class="conv" aria-label="Konversi">
+    <div class="row">
+      <label for="usd"><span>Anda punya</span><span>Dolar AS</span></label>
+      <div class="box">
+        <svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#b22234"/><g fill="#fff"><rect y="1.54" width="30" height="1.54"/><rect y="4.62" width="30" height="1.54"/><rect y="7.69" width="30" height="1.54"/><rect y="10.77" width="30" height="1.54"/><rect y="13.85" width="30" height="1.54"/><rect y="16.92" width="30" height="1.54"/></g><rect width="13" height="10.77" fill="#3c3b6e"/></svg>
+        <span class="sym">$</span>
+        <input id="usd" inputmode="decimal" autocomplete="off" value="1">
+      </div>
+    </div>
+    <div class="mid" aria-hidden="true"><span class="eq"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 2v12M2 11l3 3 3-3M11 14V2M8 5l3-3 3 3"/></svg></span></div>
+    <div class="row">
+      <label for="idr"><span>Setara dengan</span><span>Rupiah</span></label>
+      <div class="box">
+        <svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="10" fill="#ce1126"/><rect y="10" width="30" height="10" fill="#fff"/></svg>
+        <span class="sym">Rp</span>
+        <input id="idr" inputmode="numeric" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="edit"><label for="rate">Pakai kurs lain:</label><input id="rate" inputmode="decimal" value="18.027"></div>
+    <p class="src">Rupiah melemah 89 poin dari Rp17.938 (15 Okt). Sumber: iNews.id. Kurs bank bisa berbeda karena selisih jual-beli.</p>
+  </footer>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d)=>isFinite(n)?n.toLocaleString('id-ID',{maximumFractionDigits:d}):'';
+function parse(s){
+  s=String(s).trim().replace(/[^\d.,]/g,'');
+  if(!s) return NaN;
+  if(s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.'));
+  const p=s.split('.');
+  if(p.length===2&&p[1].length!==3) return parseFloat(s);
+  return parseFloat(s.replace(/\./g,''));
+}
+let last='usd';
+function calc(){
+  const r=parse($('rate').value); if(!(r>0)) return;
+  $('rateBig').innerHTML='<small>Rp</small>'+fmt(r,2);
+  if(last==='usd'){const u=parse($('usd').value);$('idr').value=fmt(u*r,0);}
+  else{const i=parse($('idr').value);$('usd').value=fmt(i/r,2);}
+}
+$('usd').addEventListener('input',()=>{last='usd';calc()});
+$('idr').addEventListener('input',()=>{last='idr';calc()});
+$('rate').addEventListener('input',calc);
+calc();
+</script>
+</body>
+</html>
