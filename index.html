@@ -10,15 +10,15 @@
 /* Layout: satu "lembar uang" di tengah. Panel atas = papan kurs berpola guilloche, panel bawah = dua kolom konversi */
 :root{
   --bg:#e9eee9; --paper:#fbfcf9; --ink:#14201b; --muted:#5d6b64; --line:#d5ddd7;
-  --note:#0d5a43; --note-2:#127a5a; --note-ink:#f2f7f3; --gold:#c49a3a; --down:#b4442f; --field:#f1f4f0;
+  --note:#0f3d8a; --note-2:#1e60c8; --note-ink:#f2f7f3; --gold:#c49a3a; --down:#b4442f; --field:#f1f4f0;
   --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0c1311; --paper:#151e1b; --ink:#e8efeb; --muted:#97a69f; --line:#28342f;
-  --note:#0b4736; --note-2:#10644b; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}}
+  --note:#0c2f6b; --note-2:#1a4fa6; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0c1311; --paper:#151e1b; --ink:#e8efeb; --muted:#97a69f; --line:#28342f;
-  --note:#0b4736; --note-2:#10644b; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}
+  --note:#0c2f6b; --note-2:#1a4fa6; --note-ink:#eef5f0; --gold:#d8b25a; --down:#ec7a62; --field:#1b2622; color-scheme:dark}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px}
